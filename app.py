@@ -435,5 +435,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 if __name__ == "__main__":
     print("Starting NexMath...")
-    print("Open http://localhost:5001 in your browser")
-    app.run(debug=True, port=5001, host='0.0.0.0')
+    port = int(os.environ.get("PORT", "5001"))
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    print(f"Open http://localhost:{port} in your browser")
+    app.run(debug=debug, port=port, host="0.0.0.0")

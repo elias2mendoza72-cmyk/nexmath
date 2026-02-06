@@ -3,3 +3,4 @@ anthropic==0.43.0
 python-dotenv==1.0.1
 matplotlib==3.8.2
 numpy==1.26.3
+gunicorn==21.2.0
