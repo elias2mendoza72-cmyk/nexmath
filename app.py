@@ -44,7 +44,29 @@ def execute_python_code(code):
     try:
         # Create a wrapper script that saves the plot
         # Remove any blocking show() calls to avoid timeouts
+        def _sanitize_code(raw):
+            lines = raw.splitlines()
+            cleaned = []
+            code_like = re.compile(
+                r'^\s*(#|import |from |plt\.|np\.|matplotlib|sns\.|ax\.|fig\.|'
+                r'for |if |elif |else:|while |def |class |with |try:|except |return|'
+                r'pass|break|continue|[A-Za-z_][A-Za-z0-9_]*(\s*,\s*[A-Za-z_][A-Za-z0-9_]*)*\s*=|'
+                r'[A-Za-z_][A-Za-z0-9_]*\s*\(|[\]\)\}])'
+            )
+            for line in lines:
+                if "```" in line:
+                    continue
+                if line.strip() == "":
+                    cleaned.append(line)
+                    continue
+                if code_like.search(line):
+                    cleaned.append(line)
+                else:
+                    cleaned.append("# " + line)
+            return "\n".join(cleaned)
+
         sanitized_code = re.sub(r'^\s*plt\.show\(\)\s*$', '', code, flags=re.MULTILINE)
+        sanitized_code = _sanitize_code(sanitized_code)
 
         wrapper = f"""
 import matplotlib
@@ -82,7 +104,7 @@ plt.close()
             if os.path.exists(plot_path):
                 with open(plot_path, 'rb') as f:
                     img_data = base64.b64encode(f.read()).decode('utf-8')
-                return img_data5
+                return img_data
 
             if result.stderr:
                 print(f"Plot stderr: {result.stderr}")
