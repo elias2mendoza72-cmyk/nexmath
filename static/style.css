@@ -435,9 +435,10 @@ body.theme-academic .theme-icon-sun {
 
 .mode-btn.active {
     color: var(--text);
-    background: rgba(59, 130, 246, 0.14);
-    border: 1px solid rgba(59, 130, 246, 0.45);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
     transform: none;
 }
 

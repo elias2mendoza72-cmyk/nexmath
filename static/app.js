@@ -1243,7 +1243,6 @@ async function newSession() {
             <h2 class="welcome-wordmark">
                 <img src="/static/nexmath-wordmark.png?v=20260209c" alt="NexMath">
             </h2>
-            <p>Upload a photo of a problem or type a question to get started.</p>
             <div class="mode-hints">
                 <div class="hint">
                     <span class="hint-title">Solve</span>
