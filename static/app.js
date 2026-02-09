@@ -30,7 +30,8 @@ let imagePreviewContainer, imagePreview, removeImageBtn;
 let newSessionBtn, modeBtns, dragOverlay, scrollBottomBtn, sessionTitleEl, modeIndicatorEl, stepsToggle, explainStyleEl;
 let errorBanner, errorBannerText, retryBtn, dismissBtn;
 let themeToggle;
-let progressPopover;
+let progressSheet;
+let progressSheetCloseButtons;
 let logoToggleBtn;
 
 // ==================== Initialize ====================
@@ -57,7 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
     retryBtn = document.getElementById("retry-btn");
     dismissBtn = document.getElementById("dismiss-btn");
     themeToggle = document.getElementById("theme-toggle");
-    progressPopover = document.getElementById("progress-popover");
+    progressSheet = document.getElementById("progress-sheet");
+    progressSheetCloseButtons = document.querySelectorAll("[data-progress-close]");
     logoToggleBtn = document.getElementById("logo-toggle");
 
     // Load saved theme
@@ -168,18 +170,20 @@ function setupEventListeners() {
         themeToggle.addEventListener("click", toggleTheme);
     }
 
-    // Progress popover toggle
-    if (logoToggleBtn && progressPopover) {
+    // Progress sheet toggle
+    if (logoToggleBtn && progressSheet) {
         logoToggleBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            const isVisible = progressPopover.classList.toggle("visible");
-            progressPopover.setAttribute("aria-hidden", isVisible ? "false" : "true");
+            const isVisible = progressSheet.classList.toggle("visible");
+            progressSheet.setAttribute("aria-hidden", isVisible ? "false" : "true");
+            document.body.classList.toggle("sheet-open", isVisible);
         });
-        document.addEventListener("click", (e) => {
-            if (!progressPopover.classList.contains("visible")) return;
-            if (progressPopover.contains(e.target) || logoToggleBtn.contains(e.target)) return;
-            progressPopover.classList.remove("visible");
-            progressPopover.setAttribute("aria-hidden", "true");
+        progressSheetCloseButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                progressSheet.classList.remove("visible");
+                progressSheet.setAttribute("aria-hidden", "true");
+                document.body.classList.remove("sheet-open");
+            });
         });
     }
 }
@@ -1368,8 +1372,8 @@ function updateProgressFromText(text) {
 }
 
 function renderProgress() {
-    if (!progressPopover) return;
-    progressPopover.querySelectorAll(".progress-item").forEach((item) => {
+    if (!progressSheet) return;
+    progressSheet.querySelectorAll(".progress-item").forEach((item) => {
         const key = item.dataset.topic;
         if (key && progressState[key]) {
             item.classList.add("done");

@@ -78,13 +78,20 @@
         </div>
     </div>
 
-    <div id="progress-popover" class="progress-popover" aria-hidden="true">
-        <div class="progress-items">
-            <span class="progress-item" data-topic="limits">Limits</span>
-            <span class="progress-item" data-topic="continuity">Continuity</span>
-            <span class="progress-item" data-topic="derivatives">Derivatives</span>
-            <span class="progress-item" data-topic="integrals">Integrals</span>
-            <span class="progress-item" data-topic="applications">Applications</span>
+    <div id="progress-sheet" class="progress-sheet" aria-hidden="true">
+        <div class="progress-sheet-backdrop" data-progress-close></div>
+        <div class="progress-sheet-panel" role="dialog" aria-modal="true" aria-label="Learning progress">
+            <div class="progress-sheet-header">
+                <span>Progress</span>
+                <button class="progress-sheet-close" data-progress-close aria-label="Close progress">×</button>
+            </div>
+            <div class="progress-items">
+                <span class="progress-item" data-topic="limits">Limits</span>
+                <span class="progress-item" data-topic="continuity">Continuity</span>
+                <span class="progress-item" data-topic="derivatives">Derivatives</span>
+                <span class="progress-item" data-topic="integrals">Integrals</span>
+                <span class="progress-item" data-topic="applications">Applications</span>
+            </div>
         </div>
     </div>
 

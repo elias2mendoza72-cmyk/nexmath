@@ -517,21 +517,72 @@ body.theme-academic .theme-icon-sun {
     width: 100%;
 }
 
-.progress-popover {
-    position: absolute;
-    top: 72px;
-    left: 16px;
-    padding: 0.6rem 0.7rem;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+.progress-sheet {
+    position: fixed;
+    inset: 0;
     display: none;
-    z-index: 12;
+    z-index: 30;
 }
 
-.progress-popover.visible {
+.progress-sheet.visible {
     display: block;
+}
+
+.progress-sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 6, 12, 0.65);
+    backdrop-filter: blur(8px);
+}
+
+.progress-sheet-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -14px 30px rgba(2, 6, 23, 0.45);
+    transform: translateY(12%);
+    animation: sheet-rise 0.28s ease-out forwards;
+}
+
+.progress-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.progress-sheet-close {
+    border: none;
+    background: var(--surface);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.progress-sheet-close:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+@keyframes sheet-rise {
+    from { transform: translateY(18%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+body.sheet-open {
+    overflow: hidden;
 }
 
 .progress-items {
