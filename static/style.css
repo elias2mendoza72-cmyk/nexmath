@@ -254,16 +254,30 @@ header {
 .header-left {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
+    gap: 0.75rem;
 }
 
-.header-logo {
+.logo-toggle {
     width: 38px;
     height: 38px;
-    display: flex;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: all var(--transition), transform var(--duration-fast) ease;
+}
+
+.logo-toggle:hover {
+    transform: translateY(-1px);
+    background: var(--surface-hover);
+}
+
+.logo-toggle:active {
+    transform: translateY(0) scale(0.97);
 }
 
 .brand-icon {
@@ -274,17 +288,7 @@ header {
 }
 
 .brand-wordmark {
-    font-size: 1.25rem;
-    font-weight: 700;
-    font-family: var(--font-display);
-    color: var(--text);
-    letter-spacing: -0.02em;
-}
-
-.brand-wordmark img {
-    height: 32px;
-    width: auto;
-    display: block;
+    display: none;
 }
 
 .session-title {
@@ -431,8 +435,9 @@ body.theme-academic .theme-icon-sun {
 
 .mode-btn.active {
     color: var(--text);
-    background: var(--surface-hover);
-    box-shadow: var(--shadow-sm);
+    background: rgba(59, 130, 246, 0.14);
+    border: 1px solid rgba(59, 130, 246, 0.45);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
     transform: none;
 }
 
@@ -511,23 +516,21 @@ body.theme-academic .theme-icon-sun {
     width: 100%;
 }
 
-#progress-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 0.5rem 1.5rem;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
+.progress-popover {
+    position: absolute;
+    top: 72px;
+    left: 16px;
+    padding: 0.6rem 0.7rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: none;
+    z-index: 12;
 }
 
-.progress-title {
-    font-weight: 600;
-    color: var(--text-secondary);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+.progress-popover.visible {
+    display: block;
 }
 
 .progress-items {

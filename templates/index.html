@@ -22,12 +22,9 @@
 <body class="theme-techlux">
     <header>
         <div class="header-left">
-            <div class="header-logo">
-                <img src="{{ url_for('static', filename='nexmath-icon.png', v='20260209c') }}" alt="NexMath icon" class="brand-icon">
-            </div>
-            <h1 class="brand-wordmark">
-                <img src="{{ url_for('static', filename='nexmath-wordmark.png', v='20260209c') }}" alt="NexMath">
-            </h1>
+            <button id="logo-toggle" class="logo-toggle" aria-label="Show learning progress" title="Show learning progress">
+                <img src="{{ url_for('static', filename='nexmath-icon.png', v='20260209c') }}" alt="NexMath" class="brand-icon">
+            </button>
         </div>
         <div id="mode-indicator" class="mode-indicator">Solve</div>
         <div class="header-right">
@@ -81,8 +78,7 @@
         </div>
     </div>
 
-    <div id="progress-panel" aria-label="Learning progress">
-        <span class="progress-title">Progress</span>
+    <div id="progress-popover" class="progress-popover" aria-hidden="true">
         <div class="progress-items">
             <span class="progress-item" data-topic="limits">Limits</span>
             <span class="progress-item" data-topic="continuity">Continuity</span>
@@ -95,9 +91,6 @@
     <main id="chat-area" role="main">
         <div id="messages" aria-live="polite" aria-label="Conversation messages">
             <div class="welcome-message">
-                <div class="welcome-icon">
-                    <img src="{{ url_for('static', filename='nexmath-icon.png', v='20260209c') }}" alt="NexMath icon" class="welcome-logo">
-                </div>
                 <h2 class="welcome-wordmark">
                     <img src="{{ url_for('static', filename='nexmath-wordmark.png', v='20260209c') }}" alt="NexMath">
                 </h2>

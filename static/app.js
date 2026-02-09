@@ -30,7 +30,8 @@ let imagePreviewContainer, imagePreview, removeImageBtn;
 let newSessionBtn, modeBtns, dragOverlay, scrollBottomBtn, sessionTitleEl, modeIndicatorEl, stepsToggle, explainStyleEl;
 let errorBanner, errorBannerText, retryBtn, dismissBtn;
 let themeToggle;
-let progressPanel;
+let progressPopover;
+let logoToggleBtn;
 
 // ==================== Initialize ====================
 document.addEventListener("DOMContentLoaded", () => {
@@ -56,7 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
     retryBtn = document.getElementById("retry-btn");
     dismissBtn = document.getElementById("dismiss-btn");
     themeToggle = document.getElementById("theme-toggle");
-    progressPanel = document.getElementById("progress-panel");
+    progressPopover = document.getElementById("progress-popover");
+    logoToggleBtn = document.getElementById("logo-toggle");
 
     // Load saved theme
     const savedTheme = localStorage.getItem("nexmath-theme") || "techlux";
@@ -164,6 +166,21 @@ function setupEventListeners() {
     // Theme toggle
     if (themeToggle) {
         themeToggle.addEventListener("click", toggleTheme);
+    }
+
+    // Progress popover toggle
+    if (logoToggleBtn && progressPopover) {
+        logoToggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isVisible = progressPopover.classList.toggle("visible");
+            progressPopover.setAttribute("aria-hidden", isVisible ? "false" : "true");
+        });
+        document.addEventListener("click", (e) => {
+            if (!progressPopover.classList.contains("visible")) return;
+            if (progressPopover.contains(e.target) || logoToggleBtn.contains(e.target)) return;
+            progressPopover.classList.remove("visible");
+            progressPopover.setAttribute("aria-hidden", "true");
+        });
     }
 }
 
@@ -1223,22 +1240,9 @@ async function newSession() {
     // Clear chat
     messagesEl.innerHTML = `
         <div class="welcome-message">
-            <div class="welcome-icon">
-                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="curveGradWReset" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#22d3ee"/>
-                            <stop offset="50%" stop-color="#3b82f6"/>
-                            <stop offset="100%" stop-color="#a855f7"/>
-                        </linearGradient>
-                    </defs>
-                    <path d="M8 32 Q12 32 16 24 Q20 16 28 8" stroke="url(#curveGradWReset)" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <path d="M25 12 L28 8 L32 11" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                    <circle cx="8" cy="32" r="4" fill="#22d3ee"/>
-                    <circle cx="20" cy="20" r="2.5" fill="#8b5cf6"/>
-                </svg>
-            </div>
-            <h2><span class="title-nex">Nex</span><span class="title-math">Math</span></h2>
+            <h2 class="welcome-wordmark">
+                <img src="/static/nexmath-wordmark.png?v=20260209c" alt="NexMath">
+            </h2>
             <p>Upload a photo of a problem or type a question to get started.</p>
             <div class="mode-hints">
                 <div class="hint">
@@ -1297,16 +1301,7 @@ function updateScrollButton() {
 }
 
 function ensureBranding() {
-    const headerTitle = document.querySelector("header h1");
-    if (headerTitle) {
-        headerTitle.innerHTML =
-            '<span class="title-nex">Nex</span><span class="title-math">Math</span>';
-    }
-    const welcomeTitle = document.querySelector(".welcome-message h2");
-    if (welcomeTitle) {
-        welcomeTitle.innerHTML =
-            '<span class="title-nex">Nex</span><span class="title-math">Math</span>';
-    }
+    // Branding is now image-based; no text overrides.
 }
 
 function generateSessionTitle(text) {
@@ -1374,8 +1369,8 @@ function updateProgressFromText(text) {
 }
 
 function renderProgress() {
-    if (!progressPanel) return;
-    progressPanel.querySelectorAll(".progress-item").forEach((item) => {
+    if (!progressPopover) return;
+    progressPopover.querySelectorAll(".progress-item").forEach((item) => {
         const key = item.dataset.topic;
         if (key && progressState[key]) {
             item.classList.add("done");
