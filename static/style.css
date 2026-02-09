@@ -442,6 +442,10 @@ body.theme-academic .theme-icon-sun {
     transform: none;
 }
 
+.mode-btn:focus-visible {
+    box-shadow: none;
+}
+
 /* Mode descriptions */
 .mode-btn .mode-desc {
     display: none;
