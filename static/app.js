@@ -7,6 +7,16 @@ let originalConcept = null; // Track concept being explained for follow-ups
 let lastUserMessage = null;
 let editingMessage = null;
 let lastPayload = null;
+let lastAssistantText = "";
+let progressState = {
+    limits: false,
+    continuity: false,
+    derivatives: false,
+    integrals: false,
+    applications: false,
+};
+let mistakeCounts = {};
+let examAwaitingAnswer = false;
 
 const NGROK_SKIP_HEADERS = { "ngrok-skip-browser-warning": "true" };
 
@@ -20,6 +30,7 @@ let imagePreviewContainer, imagePreview, removeImageBtn;
 let newSessionBtn, modeBtns, dragOverlay, scrollBottomBtn, sessionTitleEl, modeIndicatorEl, stepsToggle, explainStyleEl;
 let errorBanner, errorBannerText, retryBtn, dismissBtn;
 let themeToggle;
+let progressPanel;
 
 // ==================== Initialize ====================
 document.addEventListener("DOMContentLoaded", () => {
@@ -45,10 +56,33 @@ document.addEventListener("DOMContentLoaded", () => {
     retryBtn = document.getElementById("retry-btn");
     dismissBtn = document.getElementById("dismiss-btn");
     themeToggle = document.getElementById("theme-toggle");
+    progressPanel = document.getElementById("progress-panel");
 
     // Load saved theme
     const savedTheme = localStorage.getItem("nexmath-theme") || "techlux";
     document.body.className = `theme-${savedTheme}`;
+
+    const splash = document.getElementById("splash");
+    if (splash) {
+        setTimeout(() => {
+            splash.remove();
+        }, 2400);
+        const updateGlow = (x, y) => {
+            const mx = Math.max(0, Math.min(100, (x / window.innerWidth) * 100));
+            const my = Math.max(0, Math.min(100, (y / window.innerHeight) * 100));
+            document.documentElement.style.setProperty("--mx", `${mx}%`);
+            document.documentElement.style.setProperty("--my", `${my}%`);
+        };
+        window.addEventListener("mousemove", (e) => updateGlow(e.clientX, e.clientY));
+        window.addEventListener("touchmove", (e) => {
+            if (e.touches && e.touches[0]) {
+                updateGlow(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+    }
+
+    loadSessionState();
+    renderProgress();
 
     checkHealth();
     setupEventListeners();
@@ -83,7 +117,7 @@ function setupEventListeners() {
         const hint = e.target.closest(".hint");
         if (hint) {
             const title = hint.querySelector(".hint-title")?.textContent?.toLowerCase();
-            if (title && ["solve", "explain", "quiz"].includes(title)) {
+            if (title && ["solve", "explain", "quiz", "exam"].includes(title)) {
                 switchMode(title);
                 userInput.focus();
             }
@@ -182,6 +216,10 @@ async function sendMessage() {
         addUserMessage(text, pendingImage?.dataUrl);
     }
 
+    if (text) {
+        updateProgressFromText(text);
+    }
+
     if (text && sessionTitleEl && sessionTitleEl.textContent === "New session") {
         sessionTitleEl.textContent = generateSessionTitle(text);
     }
@@ -197,10 +235,15 @@ async function sendMessage() {
         mode: currentMode,
         session_id: sessionId,
         plot_mode: "auto",
-        show_steps: stepsToggle ? stepsToggle.checked : true,
+        show_steps: currentMode === "exam" ? false : (stepsToggle ? stepsToggle.checked : true),
         explain_style: explainStyleEl ? explainStyleEl.value : "intuition",
+        exam_answer: currentMode === "exam" && examAwaitingAnswer,
     };
     lastPayload = payload;
+    if (currentMode === "exam" && examAwaitingAnswer) {
+        examAwaitingAnswer = false;
+    }
+    saveSessionState();
     if (pendingImage) {
         payload.image = pendingImage.base64;
         payload.image_type = pendingImage.type;
@@ -314,6 +357,7 @@ async function sendPayload(payload) {
             sessionId = data.session_id;
             addAssistantMessage(data.response);
             markLastUserDelivered();
+            saveSessionState();
             hideErrorBanner();
         }
     } catch (err) {
@@ -419,6 +463,14 @@ function addAssistantMessageStream() {
 }
 
 function renderAssistantMessage(div, markdownText) {
+    lastAssistantText = markdownText || "";
+    if (markdownText) {
+        updateProgressFromText(markdownText);
+    }
+    if (currentMode === "exam") {
+        examAwaitingAnswer = /answer|solve|provide your solution|show your work/i.test(markdownText);
+    }
+
     // Check if we're in quiz mode and response contains problem markers
     if (currentMode === "quiz" && containsQuizProblems(markdownText)) {
         div.innerHTML = renderQuizWithCards(markdownText);
@@ -465,7 +517,63 @@ function renderAssistantMessage(div, markdownText) {
     meta.appendChild(timeEl);
     div.appendChild(meta);
 
+    addAssistanceActions(div);
     addCopyButton(div, markdownText);
+}
+
+function addAssistanceActions(div) {
+    const actions = document.createElement("div");
+    actions.className = "assist-actions";
+
+    const stuckBtn = document.createElement("button");
+    stuckBtn.className = "assist-btn";
+    stuckBtn.textContent = "I'm stuck here";
+    stuckBtn.addEventListener("click", () => {
+        const step = prompt("Which step are you stuck on? (e.g., 2)");
+        const stepText = step ? `Step ${step}` : "a specific step";
+        sendFollowupMessage(
+            `I'm stuck on ${stepText}. Here is your last solution:\n\n${lastAssistantText}\n\nPlease explain only that step simply and briefly.`
+        );
+    });
+
+    const lowBtn = document.createElement("button");
+    lowBtn.className = "assist-btn";
+    lowBtn.textContent = "Confidence: Low";
+    lowBtn.addEventListener("click", () => {
+        sendFollowupMessage(
+            "My confidence is low. Give me a simpler explanation and a very easy example."
+        );
+    });
+
+    const medBtn = document.createElement("button");
+    medBtn.className = "assist-btn";
+    medBtn.textContent = "Confidence: Medium";
+    medBtn.addEventListener("click", () => {
+        sendFollowupMessage(
+            "My confidence is medium. Give me one more example and a quick check question."
+        );
+    });
+
+    const highBtn = document.createElement("button");
+    highBtn.className = "assist-btn";
+    highBtn.textContent = "Confidence: High";
+    highBtn.addEventListener("click", () => {
+        sendFollowupMessage(
+            "My confidence is high. Give me a harder variant to test myself."
+        );
+    });
+
+    actions.appendChild(stuckBtn);
+    actions.appendChild(lowBtn);
+    actions.appendChild(medBtn);
+    actions.appendChild(highBtn);
+    div.appendChild(actions);
+}
+
+function sendFollowupMessage(message) {
+    if (isLoading) return;
+    userInput.value = message;
+    sendMessage();
 }
 
 function addCopyButton(div, markdownText) {
@@ -810,7 +918,7 @@ function handleQuizCheck(event) {
     const problemTitle = card.querySelector(".quiz-card-title").textContent;
     const problemContent = card.querySelector(".quiz-card-content").textContent;
 
-    const checkMessage = `I'm working on ${problemTitle}:\n\n${problemContent}\n\nMy answer: ${answer}\n\nIs this correct? Please check my work and provide feedback.`;
+    const checkMessage = `I'm working on ${problemTitle}:\n\n${problemContent}\n\nMy answer: ${answer}\n\nCheck my work and provide feedback. End with:\nRESULT: CORRECT or RESULT: INCORRECT.`;
 
     fetch("/api/chat", {
         method: "POST",
@@ -830,8 +938,15 @@ function handleQuizCheck(event) {
                 sessionId = data.session_id;
                 feedback.className = "quiz-card-feedback";
                 feedback.innerHTML = renderMarkdownWithMath(data.response);
-                // Mark progress dot as completed (text answers are API-checked)
-                updateQuizProgressDot(card, true);
+                const parsedText = feedback.textContent || "";
+                const isCorrect = parsedText.includes("RESULT: CORRECT") && !parsedText.includes("RESULT: INCORRECT");
+                updateQuizProgressDot(card, isCorrect);
+
+                if (parsedText.includes("RESULT: INCORRECT")) {
+                    const topicKey = inferTopicFromText(problemContent);
+                    recordMistake(topicKey);
+                }
+                saveSessionState();
             }
             feedback.style.display = "block";
             button.textContent = "Check Answer";
@@ -871,6 +986,8 @@ function handleOptionClick(event) {
         feedback.innerHTML = `<strong>✓ Correct!</strong> Well done.`;
     } else {
         clickedOption.classList.add("incorrect");
+        const topicKey = inferTopicFromText(card.querySelector(".quiz-card-content").textContent);
+        recordMistake(topicKey);
         // Highlight the correct answer
         allOptions.forEach(opt => {
             if (opt.dataset.option === correctLetter) {
@@ -990,7 +1107,8 @@ async function sendExplainFollowup(message, action) {
         mode: "explain",
         session_id: sessionId,
         explain_action: action,
-        original_concept: originalConcept
+        original_concept: originalConcept,
+        plot_mode: "auto"
     };
 
     // Show loading
@@ -1015,6 +1133,7 @@ async function sendExplainFollowup(message, action) {
         } else {
             sessionId = data.session_id;
             addAssistantMessage(data.response);
+            saveSessionState();
         }
     } catch (err) {
         loadingEl.remove();
@@ -1081,6 +1200,8 @@ function switchMode(mode) {
     // Update placeholder text based on mode
     if (mode === "quiz") {
         userInput.placeholder = "Submit your answer or ask for a hint...";
+    } else if (mode === "exam") {
+        userInput.placeholder = "Enter an exam topic or problem...";
     } else {
         userInput.placeholder = "Ask a calculus question...";
     }
@@ -1132,6 +1253,10 @@ async function newSession() {
                     <span class="hint-title">Quiz</span>
                     <span class="hint-desc">Practice problems at increasing difficulty</span>
                 </div>
+                <div class="hint">
+                    <span class="hint-title">Exam</span>
+                    <span class="hint-desc">Exam-style problems with grading</span>
+                </div>
             </div>
         </div>
     `;
@@ -1140,6 +1265,17 @@ async function newSession() {
     userInput.value = "";
     userInput.focus();
     if (sessionTitleEl) sessionTitleEl.textContent = "New session";
+    progressState = {
+        limits: false,
+        continuity: false,
+        derivatives: false,
+        integrals: false,
+        applications: false,
+    };
+    mistakeCounts = {};
+    localStorage.removeItem("nexmath-mistakes");
+    saveSessionState();
+    renderProgress();
 }
 
 // ==================== Utilities ====================
@@ -1177,6 +1313,110 @@ function generateSessionTitle(text) {
     const words = text.replace(/\s+/g, " ").trim().split(" ");
     const title = words.slice(0, 5).join(" ");
     return title.length > 36 ? `${title.slice(0, 33)}...` : title;
+}
+
+function saveSessionState() {
+    if (sessionId) {
+        localStorage.setItem("nexmath-session-id", sessionId);
+    }
+    if (originalConcept) {
+        localStorage.setItem("nexmath-original-concept", originalConcept);
+    }
+    localStorage.setItem("nexmath-progress", JSON.stringify(progressState));
+}
+
+function loadSessionState() {
+    const storedSession = localStorage.getItem("nexmath-session-id");
+    if (storedSession) {
+        sessionId = storedSession;
+    }
+    const storedConcept = localStorage.getItem("nexmath-original-concept");
+    if (storedConcept) {
+        originalConcept = storedConcept;
+    }
+    const storedProgress = localStorage.getItem("nexmath-progress");
+    if (storedProgress) {
+        try {
+            progressState = { ...progressState, ...JSON.parse(storedProgress) };
+        } catch {
+            // ignore invalid stored data
+        }
+    }
+    const storedMistakes = localStorage.getItem("nexmath-mistakes");
+    if (storedMistakes) {
+        try {
+            mistakeCounts = JSON.parse(storedMistakes) || {};
+        } catch {
+            mistakeCounts = {};
+        }
+    }
+}
+
+function updateProgressFromText(text) {
+    const lower = text.toLowerCase();
+    if (/(limit|approach|l\\'hôpital|lhospital)/.test(lower)) {
+        progressState.limits = true;
+    }
+    if (/(continuity|continuous|discontinuous)/.test(lower)) {
+        progressState.continuity = true;
+    }
+    if (/(derivative|d\\/dx|differentiation|tangent)/.test(lower)) {
+        progressState.derivatives = true;
+    }
+    if (/(integral|anti-?derivative|area under)/.test(lower)) {
+        progressState.integrals = true;
+    }
+    if (/(optimization|related rates|motion|volume|application)/.test(lower)) {
+        progressState.applications = true;
+    }
+    renderProgress();
+    saveSessionState();
+}
+
+function renderProgress() {
+    if (!progressPanel) return;
+    progressPanel.querySelectorAll(".progress-item").forEach((item) => {
+        const key = item.dataset.topic;
+        if (key && progressState[key]) {
+            item.classList.add("done");
+        } else {
+            item.classList.remove("done");
+        }
+    });
+}
+
+function inferTopicFromText(text) {
+    const lower = (text || "").toLowerCase();
+    if (/(limit|approach|l\\'hôpital|lhospital)/.test(lower)) return "limits";
+    if (/(continuity|continuous|discontinuous)/.test(lower)) return "continuity";
+    if (/(derivative|d\\/dx|differentiation|tangent)/.test(lower)) return "derivatives";
+    if (/(integral|anti-?derivative|area under)/.test(lower)) return "integrals";
+    if (/(optimization|related rates|motion|volume|application)/.test(lower)) return "applications";
+    return null;
+}
+
+function recordMistake(topicKey) {
+    if (!topicKey) return;
+    mistakeCounts[topicKey] = (mistakeCounts[topicKey] || 0) + 1;
+    localStorage.setItem("nexmath-mistakes", JSON.stringify(mistakeCounts));
+    if (mistakeCounts[topicKey] === 2) {
+        addMistakeNudge(topicKey);
+    }
+}
+
+function addMistakeNudge(topicKey) {
+    const div = document.createElement("div");
+    div.className = "message assistant notice";
+    const label = topicKey.charAt(0).toUpperCase() + topicKey.slice(1);
+    div.innerHTML = `
+        <div class="notice-text">Noted a repeated mistake in <strong>${label}</strong>. Want a 2‑minute refresher?</div>
+        <button class="notice-btn">Quick refresher</button>
+    `;
+    div.querySelector(".notice-btn").addEventListener("click", () => {
+        sendFollowupMessage(`Give me a 2-minute refresher on ${label} with one simple example.`);
+    });
+    messagesEl.appendChild(div);
+    scrollToBottom();
 }
 
 function formatTime(date) {

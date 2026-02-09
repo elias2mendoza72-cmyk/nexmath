@@ -110,6 +110,76 @@ body {
     position: relative;
 }
 
+#splash {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(34, 211, 238, 0.15), transparent 45%), #0a0a0b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    opacity: 1;
+    pointer-events: none;
+    animation: splash-fade 2.2s ease-in-out forwards;
+}
+
+.splash-glow {
+    position: absolute;
+    inset: -20%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.18), transparent 55%);
+    filter: blur(20px);
+    animation: splash-pulse 1.6s ease-in-out infinite;
+}
+
+.splash-logo {
+    width: 140px;
+    height: 140px;
+    border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(34, 211, 238, 0.25);
+    transform: scale(0.7);
+    animation: splash-pop 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.splash-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    animation: splash-rise 1.2s ease-out forwards;
+}
+
+.splash-tagline {
+    font-size: 0.95rem;
+    color: var(--text-tertiary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    animation: splash-rise 1.4s ease-out forwards;
+}
+
+@keyframes splash-pop {
+    0% { transform: scale(0.7); filter: blur(2px); }
+    60% { transform: scale(1.05); filter: blur(0); }
+    100% { transform: scale(1); }
+}
+
+@keyframes splash-rise {
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splash-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes splash-fade {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
 /* ==================== Scrollbar ==================== */
 ::-webkit-scrollbar {
     width: 6px;
@@ -196,17 +266,25 @@ header {
     flex-shrink: 0;
 }
 
-.header-logo svg {
+.brand-icon {
     width: 100%;
     height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
 }
 
-header h1 {
+.brand-wordmark {
     font-size: 1.25rem;
     font-weight: 700;
     font-family: var(--font-display);
     color: var(--text);
     letter-spacing: -0.02em;
+}
+
+.brand-wordmark img {
+    height: 32px;
+    width: auto;
+    display: block;
 }
 
 .session-title {
@@ -397,28 +475,15 @@ body.theme-academic .theme-icon-sun {
     margin-bottom: 1.5rem;
 }
 
-.welcome-icon svg {
-    width: 100%;
-    height: 100%;
-    animation: logo-float 4s ease-in-out infinite;
+.welcome-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
-@keyframes logo-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-}
-
-/* Pulse effect on the cyan dot */
-.welcome-icon svg circle:first-of-type {
-    animation: dot-glow 2s ease-in-out infinite;
-}
-
-@keyframes dot-glow {
-    0%, 100% { filter: drop-shadow(0 0 4px #22d3ee); }
-    50% { filter: drop-shadow(0 0 12px #22d3ee); }
-}
-
-.welcome-message h2 {
+.welcome-wordmark {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text);
@@ -426,15 +491,10 @@ body.theme-academic .theme-icon-sun {
     margin-bottom: 0.375rem;
 }
 
-.welcome-message h2 .title-nex {
-    font-weight: 700;
-    color: #f1f5f9;
-}
-
-.welcome-message h2 .title-math {
-    font-weight: 700;
-    font-size: 1.1em;
-    color: var(--brand-blue);
+.welcome-wordmark img {
+    height: 40px;
+    width: auto;
+    display: block;
 }
 
 .welcome-message > p {
@@ -445,10 +505,50 @@ body.theme-academic .theme-icon-sun {
 
 .mode-hints {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
-    max-width: 540px;
+    max-width: 720px;
     width: 100%;
+}
+
+#progress-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1.5rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.progress-title {
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.progress-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.progress-item {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.progress-item.done {
+    border-color: rgba(34, 211, 238, 0.4);
+    color: var(--text);
+    background: rgba(34, 211, 238, 0.08);
 }
 
 .hint {
@@ -583,6 +683,52 @@ body.theme-academic .theme-icon-sun {
 
 .message.assistant .message-meta {
     justify-content: flex-start;
+}
+
+.assist-actions {
+    margin-top: 0.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.assist-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.assist-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.message.assistant.notice {
+    border: 1px solid rgba(129, 140, 248, 0.3);
+    background: rgba(129, 140, 248, 0.08);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+}
+
+.notice-text {
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.notice-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(129, 140, 248, 0.4);
+    background: rgba(129, 140, 248, 0.12);
+    color: var(--text);
+    cursor: pointer;
 }
 
 .message.user img {
@@ -1572,6 +1718,18 @@ body {
 }
 
 /* ==================== Responsive ==================== */
+@media (max-width: 900px) {
+    .mode-hints {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 520px;
+    }
+    #progress-panel {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
 @media (max-width: 640px) {
     header { padding: 0 1rem; }
     #chat-area { padding: 1.5rem 1rem; }

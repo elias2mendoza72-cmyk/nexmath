@@ -236,6 +236,7 @@ def chat():
     plot_mode = data.get("plot_mode", "on_demand")  # "auto" or "on_demand"
     show_steps = data.get("show_steps", True)
     explain_style = data.get("explain_style", "intuition")
+    exam_answer = data.get("exam_answer", False)
 
     # Need either text or image
     if not user_text and not image_data:
@@ -249,7 +250,14 @@ def chat():
         )
 
     # Apply mode instruction (or follow-up instruction for Explain mode)
-    if mode == "explain" and explain_action:
+    if mode == "exam" and exam_answer:
+        prefixed_text = (
+            "Exam grading mode. The student is answering the previous exam problem. "
+            "Grade strictly and briefly: state whether it is correct, list 1–2 key errors "
+            "or confirmations, and give the final answer. Keep a formal, time-pressured tone.\n\n"
+            f"Student answer: {user_text}"
+        )
+    elif mode == "explain" and explain_action:
         prefixed_text = get_explain_followup_instruction(
             explain_action, user_text, original_concept
         )
@@ -257,6 +265,8 @@ def chat():
         prefixed_text = get_mode_instruction(mode, user_text)
         if mode == "solve" and not show_steps:
             prefixed_text += "\n\nKeep the response concise. Do not show step-by-step work; provide only the final answer with a brief justification."
+        if mode == "solve":
+            prefixed_text += "\n\nInclude a 1–2 sentence real-world application."
     if mode == "explain":
         if explain_style == "equation":
             prefixed_text += "\n\nStart with the formal definition/equation first, then provide intuition and examples."
@@ -264,6 +274,10 @@ def chat():
             prefixed_text += "\n\nStart with intuition first, then introduce formal definitions/equations."
     if mode in ("solve", "explain"):
         prefixed_text += "\n\nEnd with a short 'Key takeaway' section (1–2 sentences)."
+
+    # If an image is included, ask for a clean transcription first
+    if image_data:
+        prefixed_text += "\n\nIf an image is provided, first transcribe the problem clearly before solving."
 
     # Session management
     if not session_id or session_id not in conversations:
@@ -332,6 +346,7 @@ def chat_stream():
     plot_mode = data.get("plot_mode", "on_demand")  # "auto" or "on_demand"
     show_steps = data.get("show_steps", True)
     explain_style = data.get("explain_style", "intuition")
+    exam_answer = data.get("exam_answer", False)
 
     # Need either text or image
     if not user_text and not image_data:
@@ -345,7 +360,14 @@ def chat_stream():
         )
 
     # Apply mode instruction (or follow-up instruction for Explain mode)
-    if mode == "explain" and explain_action:
+    if mode == "exam" and exam_answer:
+        prefixed_text = (
+            "Exam grading mode. The student is answering the previous exam problem. "
+            "Grade strictly and briefly: state whether it is correct, list 1–2 key errors "
+            "or confirmations, and give the final answer. Keep a formal, time-pressured tone.\n\n"
+            f"Student answer: {user_text}"
+        )
+    elif mode == "explain" and explain_action:
         prefixed_text = get_explain_followup_instruction(
             explain_action, user_text, original_concept
         )
@@ -353,6 +375,8 @@ def chat_stream():
         prefixed_text = get_mode_instruction(mode, user_text)
         if mode == "solve" and not show_steps:
             prefixed_text += "\n\nKeep the response concise. Do not show step-by-step work; provide only the final answer with a brief justification."
+        if mode == "solve":
+            prefixed_text += "\n\nInclude a 1–2 sentence real-world application."
     if mode == "explain":
         if explain_style == "equation":
             prefixed_text += "\n\nStart with the formal definition/equation first, then provide intuition and examples."
@@ -360,6 +384,10 @@ def chat_stream():
             prefixed_text += "\n\nStart with intuition first, then introduce formal definitions/equations."
     if mode in ("solve", "explain"):
         prefixed_text += "\n\nEnd with a short 'Key takeaway' section (1–2 sentences)."
+
+    # If an image is included, ask for a clean transcription first
+    if image_data:
+        prefixed_text += "\n\nIf an image is provided, first transcribe the problem clearly before solving."
 
     # Session management
     if not session_id or session_id not in conversations:

@@ -71,6 +71,8 @@ def get_mode_instruction(mode, user_text):
             "(3) Formal Definition with proper notation, "
             "(4) Simple Worked Example step-by-step, "
             "(5) Common Mistakes to avoid. "
+            "Include one real-world application in 1–2 sentences. "
+            "End with 1–2 near-miss practice questions (no solutions). "
             "Keep the initial explanation clear but not exhaustive—students will have buttons "
             "to go deeper or request a different explanation if needed. Use very simple terms when "
             "explaining foundational ideas.\n\n"
@@ -84,7 +86,7 @@ def get_mode_instruction(mode, user_text):
             "(2) Plan — identify technique and outline strategy, "
             "(3) Execute — step-by-step with explicit rule citations, "
             "(4) Verify — check the answer, "
-            "(5) Extend — suggest a related practice problem.\n\n"
+            "(5) Extend — suggest 1–2 related near-miss practice problems (no solutions).\n\n"
             f"Problem: {user_text}"
         )
 
@@ -99,6 +101,16 @@ def get_mode_instruction(mode, user_text):
             "(where X is A, B, C, or D). For conceptual or word problems, omit the "
             "choices and ask for a written explanation. Do NOT reveal solutions or "
             "explanations yet.\n\n"
+            f"Topic: {user_text}"
+        )
+
+    elif mode == "exam":
+        return (
+            "Exam mode. Create ONE exam-style problem based on the topic below. "
+            "Do NOT solve it yet. Ask the student to respond with their full solution. "
+            "When they respond, grade it strictly and briefly: state whether it is correct, "
+            "then list 1–2 key errors or confirmations and a final answer. Keep a formal, "
+            "time-pressured tone.\n\n"
             f"Topic: {user_text}"
         )
 
