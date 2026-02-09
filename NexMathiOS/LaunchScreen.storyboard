@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="dark"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <!-- Gradient-like background using overlapping views -->
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gradient-top">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="426"/>
+                                <color key="backgroundColor" red="0.039" green="0.039" blue="0.043" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gradient-bottom">
+                                <rect key="frame" x="0.0" y="426" width="393" height="426"/>
+                                <color key="backgroundColor" red="0.102" green="0.102" blue="0.180" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </view>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" image="NexMathLogo" id="logo-image">
+                                <rect key="frame" x="136.5" y="262" width="120" height="120"/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" image="NexMathWordmark" id="wordmark-image">
+                                <rect key="frame" x="86.5" y="401" width="220" height="46"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
+                        <color key="backgroundColor" red="0.039" green="0.039" blue="0.043" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <!-- Background constraints -->
+                            <constraint firstItem="gradient-top" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="g1"/>
+                            <constraint firstItem="gradient-top" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="g2"/>
+                            <constraint firstItem="gradient-top" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="g3"/>
+                            <constraint firstItem="gradient-top" firstAttribute="height" secondItem="Ze5-6b-2t3" secondAttribute="height" multiplier="0.5" id="g4"/>
+                            <constraint firstItem="gradient-bottom" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="g5"/>
+                            <constraint firstItem="gradient-bottom" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="g6"/>
+                            <constraint firstItem="gradient-bottom" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="g7"/>
+                            <constraint firstItem="gradient-bottom" firstAttribute="top" secondItem="gradient-top" secondAttribute="bottom" id="g8"/>
+                            <!-- Logo constraints -->
+                            <constraint firstItem="logo-image" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="lg1"/>
+                            <constraint firstItem="logo-image" firstAttribute="bottom" secondItem="wordmark-image" secondAttribute="top" constant="-12" id="lg2"/>
+                            <constraint firstItem="logo-image" firstAttribute="width" constant="120" id="lg3"/>
+                            <constraint firstItem="logo-image" firstAttribute="height" constant="120" id="lg4"/>
+                            <constraint firstItem="wordmark-image" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="wm1"/>
+                            <constraint firstItem="wordmark-image" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="wm2"/>
+                            <constraint firstItem="wordmark-image" firstAttribute="width" constant="220" id="wm3"/>
+                            <constraint firstItem="wordmark-image" firstAttribute="height" constant="46" id="wm4"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+</document>
