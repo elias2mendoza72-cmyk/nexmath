@@ -17,8 +17,8 @@ struct ContentView: View {
         }
         .onAppear {
             guard showSplash else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                withAnimation(.easeOut(duration: 0.3)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                withAnimation(.easeOut(duration: 0.4)) {
                     showSplash = false
                 }
             }
@@ -27,14 +27,9 @@ struct ContentView: View {
 }
 
 struct SplashView: View {
-    @State private var logoScale: CGFloat = 0.82
-    @State private var logoOpacity = 0.0
-    @State private var titleOffset: CGFloat = 12
-    @State private var titleOpacity = 0.0
-    @State private var titleScale: CGFloat = 0.98
-    @State private var glowOpacity = 0.0
-    @State private var glowScale: CGFloat = 0.9
-    @State private var wobble = false
+    @State private var pulse = false
+    @State private var glowPulse = false
+    @State private var float = false
 
     var body: some View {
         ZStack {
@@ -49,8 +44,8 @@ struct SplashView: View {
                 .fill(Color(red: 0.34, green: 0.24, blue: 0.92).opacity(0.35))
                 .frame(width: 320, height: 320)
                 .blur(radius: 28)
-                .scaleEffect(glowScale)
-                .opacity(glowOpacity)
+                .scaleEffect(glowPulse ? 1.08 : 0.98)
+                .opacity(glowPulse ? 0.65 : 0.45)
 
             VStack(spacing: 14) {
                 Image("NexMathLogo")
@@ -58,36 +53,30 @@ struct SplashView: View {
                     .scaledToFit()
                     .frame(width: 128, height: 128)
                     .shadow(color: Color(red: 0.13, green: 0.83, blue: 0.93, opacity: 0.35), radius: 18, x: 0, y: 10)
-                    .scaleEffect(logoScale)
-                    .rotationEffect(.degrees(wobble ? 2 : -2))
-                    .offset(y: wobble ? -3 : 3)
-                    .opacity(logoOpacity)
+                    .scaleEffect(pulse ? 1.03 : 0.99)
+                    .offset(y: float ? -4 : 4)
 
                 Image("NexMathWordmark")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 36)
-                    .offset(y: titleOffset)
-                    .scaleEffect(titleScale)
-                    .opacity(titleOpacity)
+                    .frame(height: 34)
+                    .scaleEffect(pulse ? 1.01 : 1.0)
+
+                Text("CALCULUS, INSTANTLY CLARIFIED.")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Color.white.opacity(0.55))
+                    .tracking(2.2)
             }
         }
         .onAppear {
-            withAnimation(.easeOut(duration: 0.35)) {
-                logoScale = 1.0
-                logoOpacity = 1.0
+            withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
+                pulse.toggle()
             }
-            withAnimation(.easeOut(duration: 0.35)) {
-                glowOpacity = 1.0
-                glowScale = 1.0
+            withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
+                glowPulse.toggle()
             }
-            withAnimation(.easeOut(duration: 0.35)) {
-                titleOffset = 0
-                titleOpacity = 1.0
-                titleScale = 1.0
-            }
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                wobble.toggle()
+            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
+                float.toggle()
             }
         }
     }
