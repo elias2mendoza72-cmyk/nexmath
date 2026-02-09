@@ -1,13 +1,11 @@
 import SwiftUI
-import WebKit
 
 struct ContentView: View {
     @State private var showSplash = true
 
     var body: some View {
         ZStack {
-            WebView(url: URL(string: "https://nexmath.onrender.com")!)
-                .ignoresSafeArea()
+            ChatScreen()
 
             if showSplash {
                 SplashView()
@@ -81,61 +79,6 @@ struct SplashView: View {
             }
         }
     }
-}
-
-struct WebView: UIViewRepresentable {
-    let url: URL
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    class Coordinator: NSObject, WKUIDelegate, WKNavigationDelegate {
-        var parent: WebView
-
-        init(_ parent: WebView) {
-            self.parent = parent
-        }
-
-        // Handle camera/microphone permission requests from the web view
-        func webView(
-            _ webView: WKWebView,
-            requestMediaCapturePermissionFor origin: WKSecurityOrigin,
-            initiatedByFrame frame: WKFrameInfo,
-            type: WKMediaCaptureType,
-            decisionHandler: @escaping (WKPermissionDecision) -> Void
-        ) {
-            // Grant permission - iOS will still show system dialog if needed
-            decisionHandler(.grant)
-        }
-
-        // Navigation error logging for debugging
-        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            print("Navigation failed: \(error.localizedDescription)")
-        }
-
-        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-            print("Provisional navigation failed: \(error.localizedDescription)")
-        }
-    }
-
-    func makeUIView(context: Context) -> WKWebView {
-        // Configure web view for media capture
-        let configuration = WKWebViewConfiguration()
-        configuration.allowsInlineMediaPlayback = true
-        configuration.mediaTypesRequiringUserActionForPlayback = []
-
-        let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.uiDelegate = context.coordinator
-        webView.navigationDelegate = context.coordinator
-        var request = URLRequest(url: url)
-        request.cachePolicy = .reloadIgnoringLocalCacheData
-        webView.load(request)
-
-        return webView
-    }
-
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
 }
 
 #Preview {
