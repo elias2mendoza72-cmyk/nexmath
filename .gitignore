@@ -10,3 +10,6 @@ __pycache__/
 *.mov
 *.mp4
 .DS_Store
+!static/nexmath-icon.png
+!static/nexmath-logo.png
+!static/nexmath-wordmark.png
