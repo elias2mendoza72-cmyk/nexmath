@@ -78,12 +78,13 @@ struct ChatScreen: View {
     }
 
     private func sendMessage() {
-        let message = draftMessage
-        draftMessage = ""
+        let trimmed = draftMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         let image = selectedImage
+        guard !trimmed.isEmpty || image != nil else { return }
+        draftMessage = ""
         selectedImage = nil
         selectedItem = nil
-        viewModel.send(message: message, image: image)
+        viewModel.send(message: trimmed, image: image)
     }
 }
 
@@ -145,7 +146,8 @@ struct ModeSelectorView: View {
             ForEach(ChatMode.allCases) { mode in
                 Button(action: { currentMode = mode }) {
                     Text(mode.title)
-                        .font(.system(size: 14, weight: currentMode == mode ? .semibold : .regular))
+                        .font(.system(size: 14))
+                        .fontWeight(currentMode == mode ? .semibold : .regular)
                         .foregroundColor(currentMode == mode ? .white : Color.white.opacity(0.6))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
@@ -321,17 +323,20 @@ struct InputBar: View {
                         .frame(width: 32, height: 32)
                 }
 
-                ZStack(alignment: .leading) {
-                    if message.isEmpty {
-                        Text("Ask a calculus question...")
-                            .foregroundColor(.white.opacity(0.4))
-                    }
-                    TextEditor(text: $message)
-                        .frame(minHeight: 36, maxHeight: 100)
-                        .foregroundColor(.white)
-                        .scrollContentBackground(.hidden)
-                        .background(Color.clear)
-                }
+                TextField(
+                    "",
+                    text: $message,
+                    prompt: Text("Ask a calculus question...")
+                        .foregroundColor(.white.opacity(0.4)),
+                    axis: .vertical
+                )
+                    .textFieldStyle(.plain)
+                    .lineLimit(1...4)
+                    .font(.system(size: 15))
+                    .foregroundColor(.white)
+                    .padding(.vertical, 4)
+                    .textInputAutocapitalization(.sentences)
+                    .disableAutocorrection(false)
 
                 Button(action: onSend) {
                     Image(systemName: "paperplane.fill")
@@ -345,7 +350,8 @@ struct InputBar: View {
                 }
                 .disabled(isLoading || (message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedImage == nil))
             }
-            .padding(12)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 10)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color.white.opacity(0.05))
