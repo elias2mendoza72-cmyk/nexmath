@@ -50,8 +50,6 @@ struct ChatScreen: View {
                     isLoading: viewModel.isLoading,
                     selectedImage: $selectedImage,
                     selectedItem: $selectedItem,
-                    showSteps: $viewModel.showSteps,
-                    explainStyle: $viewModel.explainStyle,
                     onSend: sendMessage
                 )
             }
@@ -304,8 +302,6 @@ struct InputBar: View {
     let isLoading: Bool
     @Binding var selectedImage: UIImage?
     @Binding var selectedItem: PhotosPickerItem?
-    @Binding var showSteps: Bool
-    @Binding var explainStyle: ExplainStyle
     let onSend: () -> Void
 
     var body: some View {
@@ -367,26 +363,6 @@ struct InputBar: View {
             )
             .padding(.horizontal, 16)
 
-            HStack(spacing: 16) {
-                Toggle(isOn: $showSteps) {
-                    Text("Show steps")
-                }
-                .toggleStyle(SwitchToggleStyle(tint: Color(red: 0.62, green: 0.34, blue: 0.96)))
-                .font(.system(size: 12, weight: .semibold))
-
-                Spacer()
-
-                Picker("Explain style", selection: $explainStyle) {
-                    ForEach(ExplainStyle.allCases) { style in
-                        Text(style.title).tag(style)
-                    }
-                }
-                .pickerStyle(.menu)
-                .font(.system(size: 12, weight: .semibold))
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 8)
-            .foregroundColor(.white.opacity(0.7))
         }
         .padding(.top, 8)
         .background(Color.clear)

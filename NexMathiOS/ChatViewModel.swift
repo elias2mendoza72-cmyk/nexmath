@@ -6,8 +6,6 @@ import Combine
 final class ChatViewModel: ObservableObject {
     @Published var messages: [ChatMessage] = []
     @Published var currentMode: ChatMode = .solve
-    @Published var showSteps = true
-    @Published var explainStyle: ExplainStyle = .intuition
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var showProgressSheet = false
@@ -99,8 +97,8 @@ final class ChatViewModel: ObservableObject {
             explain_action: explainAction?.rawValue,
             original_concept: originalConcept,
             plot_mode: "auto",
-            show_steps: showSteps,
-            explain_style: explainStyle.rawValue,
+            show_steps: true,
+            explain_style: "intuition",
             exam_answer: examAnswer ? true : nil
         )
     }
