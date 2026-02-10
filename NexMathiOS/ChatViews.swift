@@ -366,26 +366,133 @@ struct InputBar: View {
 
 struct ProgressSheet: View {
     let progress: [ProgressTopic: Bool]
+    @Environment(\.dismiss) private var dismiss
+    @State private var didAppear = false
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(ProgressTopic.allCases) { topic in
-                    HStack {
-                        Text(topic.title)
-                        Spacer()
-                        if progress[topic] == true {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                        } else {
-                            Image(systemName: "circle")
-                                .foregroundColor(.gray)
-                        }
+            ZStack {
+                LinearGradient(
+                    colors: [Color(red: 0.04, green: 0.04, blue: 0.05), Color(red: 0.08, green: 0.08, blue: 0.12)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                List {
+                    ForEach(Array(ProgressTopic.allCases.enumerated()), id: \.element) { index, topic in
+                        ProgressRow(
+                            topic: topic,
+                            subtitle: progressSubtitle(for: topic),
+                            accent: progressAccentColor(for: topic),
+                            iconName: progressIconName(for: topic),
+                            completed: progress[topic] == true,
+                            didAppear: didAppear,
+                            index: index
+                        )
+                        .listRowBackground(Color.white.opacity(0.04))
+                        .listRowSeparator(.hidden)
                     }
                 }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle("Progress")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
         }
+        .onAppear { didAppear = true }
+    }
+}
+
+struct ProgressRow: View {
+    let topic: ProgressTopic
+    let subtitle: String
+    let accent: Color
+    let iconName: String
+    let completed: Bool
+    let didAppear: Bool
+    let index: Int
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(accent.opacity(0.18))
+                    .frame(width: 36, height: 36)
+                Image(systemName: iconName)
+                    .foregroundColor(accent)
+                    .font(.system(size: 16, weight: .semibold))
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(topic.title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                Text(subtitle)
+                    .font(.system(size: 12))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+
+            Spacer()
+
+            Image(systemName: completed ? "checkmark.circle.fill" : "circle")
+                .foregroundColor(completed ? accent : .white.opacity(0.25))
+                .font(.system(size: 18, weight: .semibold))
+                .symbolEffect(.bounce, value: completed)
+        }
+        .padding(.vertical, 8)
+        .opacity(didAppear ? 1 : 0)
+        .offset(y: didAppear ? 0 : 8)
+        .animation(.easeOut(duration: 0.35).delay(Double(index) * 0.05), value: didAppear)
+    }
+}
+
+private func progressAccentColor(for topic: ProgressTopic) -> Color {
+    switch topic {
+    case .limits:
+        return Color(red: 0.35, green: 0.85, blue: 0.95)
+    case .continuity:
+        return Color(red: 0.53, green: 0.78, blue: 0.47)
+    case .derivatives:
+        return Color(red: 0.64, green: 0.39, blue: 0.96)
+    case .integrals:
+        return Color(red: 0.96, green: 0.58, blue: 0.32)
+    case .applications:
+        return Color(red: 0.95, green: 0.78, blue: 0.34)
+    }
+}
+
+private func progressIconName(for topic: ProgressTopic) -> String {
+    switch topic {
+    case .limits:
+        return "arrow.right"
+    case .continuity:
+        return "waveform.path"
+    case .derivatives:
+        return "function"
+    case .integrals:
+        return "sum"
+    case .applications:
+        return "bolt.fill"
+    }
+}
+
+private func progressSubtitle(for topic: ProgressTopic) -> String {
+    switch topic {
+    case .limits:
+        return "Approach, evaluation, and indeterminate forms"
+    case .continuity:
+        return "Discontinuities, definitions, and tests"
+    case .derivatives:
+        return "Rates, slopes, and rules"
+    case .integrals:
+        return "Areas, antiderivatives, and accumulation"
+    case .applications:
+        return "Optimization and real-world modeling"
     }
 }
 
