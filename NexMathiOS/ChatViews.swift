@@ -116,17 +116,6 @@ struct HeaderView: View {
 
             Spacer()
 
-            Text(mode.title.uppercased())
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(.white.opacity(0.8))
-                .padding(.vertical, 6)
-                .padding(.horizontal, 12)
-                .background(
-                    Capsule().fill(Color.white.opacity(0.06))
-                )
-
-            Spacer()
-
             Button(action: onNewSession) {
                 HStack(spacing: 6) {
                     Image(systemName: "plus")
