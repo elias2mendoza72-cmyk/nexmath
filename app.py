@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template, Response, stream_wit
 from anthropic import Anthropic
 from dotenv import load_dotenv
 from system_prompt import get_system_prompt, get_mode_instruction, get_explain_followup_instruction
+from functools import wraps
 import os
 import uuid
 import re
@@ -10,6 +11,8 @@ import sys
 import tempfile
 import base64
 import json
+import firebase_admin
+from firebase_admin import auth as firebase_auth
 
 load_dotenv()
 
@@ -26,6 +29,7 @@ MODEL = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-20250514")
 MAX_TOKENS = 4096
 MAX_MESSAGES = 40
 _PLOT_PYTHON = None
+_FIREBASE_READY = False
 
 
 def trim_conversation(messages):
@@ -217,12 +221,46 @@ def _user_asked_for_plot(text):
     return re.search(r"\b(plot|graph|visual|visualize|chart|draw)\b", text, re.IGNORECASE) is not None
 
 
+def _init_firebase():
+    global _FIREBASE_READY
+    if _FIREBASE_READY:
+        return
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app()
+    _FIREBASE_READY = True
+
+
+def _unauthorized(message="Unauthorized"):
+    return jsonify({"error": message}), 401
+
+
+def require_auth(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return _unauthorized()
+        token = auth_header.split(" ", 1)[1].strip()
+        if not token:
+            return _unauthorized()
+        try:
+            _init_firebase()
+            decoded = firebase_auth.verify_id_token(token)
+            request.user_id = decoded.get("uid")
+        except Exception:
+            return _unauthorized()
+        return fn(*args, **kwargs)
+
+    return wrapper
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
 
 @app.route("/api/chat", methods=["POST"])
+@require_auth
 def chat():
     data = request.json
 
@@ -333,6 +371,7 @@ def chat():
 
 
 @app.route("/api/chat-stream", methods=["POST"])
+@require_auth
 def chat_stream():
     data = request.json
 
@@ -459,6 +498,7 @@ def chat_stream():
 
 
 @app.route("/api/new-session", methods=["POST"])
+@require_auth
 def new_session():
     session_id = str(uuid.uuid4())
     conversations[session_id] = []
