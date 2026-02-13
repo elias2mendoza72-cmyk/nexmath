@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>API_BASE_URL</key>
-	<string>https://nexmath.onrender.com</string>
+	<string>https://nexmath-api-19650161533.us-central1.run.app</string>
 	<key>CFBundleDisplayName</key>
 	<string>NexMath</string>
 	<key>NSAppTransportSecurity</key>
