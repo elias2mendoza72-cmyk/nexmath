@@ -24,7 +24,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXBuildFile section */
-		B59D7CA074EE44FABDDB959F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E80A975CB116448081A400F3 /* FirebaseCore */; };
 		F6474A7550714416A37AB6FF /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1958CBD7041C4D48A1C90CF1 /* FirebaseAuth */; };
 /* End PBXBuildFile section */
 
@@ -71,7 +70,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6474A7550714416A37AB6FF /* FirebaseAuth in Frameworks */,
-				B59D7CA074EE44FABDDB959F /* FirebaseCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,7 +130,6 @@
 			);
 			name = NexMathiOS;
 			packageProductDependencies = (
-				E80A975CB116448081A400F3 /* FirebaseCore */,
 				1958CBD7041C4D48A1C90CF1 /* FirebaseAuth */,
 			);
 			productName = NexMathiOS;
@@ -305,11 +302,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E80A975CB116448081A400F3 /* FirebaseCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7F0D2066BBCE4374B75F2927 /* Firebase */;
-			productName = FirebaseCore;
-		};
 		1958CBD7041C4D48A1C90CF1 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7F0D2066BBCE4374B75F2927 /* Firebase */;
