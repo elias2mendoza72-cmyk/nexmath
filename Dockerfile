@@ -17,4 +17,4 @@ COPY . .
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:${PORT}", "--timeout", "180", "app:app"]
+CMD ["sh", "-c", "gunicorn -w 1 -b 0.0.0.0:${PORT} --timeout 180 app:app"]
